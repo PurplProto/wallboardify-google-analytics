@@ -6,6 +6,7 @@
 // @author       PairedPrototype
 // @match        https://analytics.google.com/analytics/web/*
 // @match        https://analytics.google.com/analytics/app/*
+// @updateURL    https://github.com/PairedPrototype/wallboardify-google-analytics/raw/master/WallboardifyGoogleAnalytics.user.js
 // @grant        none
 // ==/UserScript==
 
