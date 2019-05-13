@@ -1,11 +1,13 @@
 // ==UserScript==
 // @name         Wallboardify Google Analytics
 // @namespace    https://pairedprototype.com/
-// @version      1.0.0
+// @version      1.0.1
 // @description  Scrolls useful content into view and hides the left menu bar on page load
 // @author       PairedPrototype
 // @match        https://analytics.google.com/analytics/web/*
 // @match        https://analytics.google.com/analytics/app/*
+// @run-at       document-idle
+// @updateURL    https://github.com/PairedPrototype/wallboardify-google-analytics/raw/master/WallboardifyGoogleAnalytics.user.js
 // @grant        none
 // ==/UserScript==
 
