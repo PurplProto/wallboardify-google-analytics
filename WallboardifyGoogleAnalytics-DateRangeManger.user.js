@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Wallboardify Google Analytics - Date Range Manger
-// @version      1.0.0
+// @version      1.0.1
 // @description  Refreshes the page on the hour and selects yesterday's date range for the data GA uses
 // @author       PairedPrototype
 // @match        https://analytics.google.com/analytics/web/*
@@ -101,7 +101,7 @@
 
     function selectYesterdayForDataRange(currentTime) {
         const currentYear = currentTime.getFullYear().toString();
-        const currentMonth = currentTime.getMonth().toString().padStart(2, '0');
+        const currentMonth = (currentTime.getMonth() + 1).toString().padStart(2, '0');
         const yesterdayDate = (currentTime.getDate() - 1).toString().padStart(2, '0');
         const yesterdaysDateString = currentYear + currentMonth + yesterdayDate;
 
