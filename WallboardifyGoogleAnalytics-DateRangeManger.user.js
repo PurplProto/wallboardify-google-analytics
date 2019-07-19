@@ -36,9 +36,9 @@
 
     function beginAutoRefresh(currentTime) {
         const refreshTime = new Date();
-        const oneHourInMiliseconds = 3600000;
+        const oneHourInMilliseconds = 3600000;
 
-        refreshTime.setTime(refreshTime.getTime() + oneHourInMiliseconds);
+        refreshTime.setTime(refreshTime.getTime() + oneHourInMilliseconds);
         refreshTime.setMinutes(0);
         refreshTime.setSeconds(0);
 
@@ -64,9 +64,9 @@
             return dateRange;
         }
 
-        const sanatisedDate = encodedDateRange[0].replace(/\//g, "").split("&");
+        const sanitisedDate = encodedDateRange[0].replace(/\//g, "").split("&");
 
-        sanatisedDate.forEach(dirtyDate => {
+        sanitisedDate.forEach(dirtyDate => {
             const cleanDate = dirtyDate.split("=");
 
             if (cleanDate[0] === '_u.date00') {
@@ -107,7 +107,7 @@
 
         const currentSelectedRange = getCurrentSelectedDateRange();
 
-        const oneSecondInMiliseconds = 1000;
+        const oneSecondInMilliseconds = 1000;
         const dateRangeNotMatchingMessage = 'Date range "from" and "to" do not match.';
         const dateRangeNotYesterdayMessage = 'Date range is not yesterday.';
         const actionMessage = ' Refreshing...';
@@ -121,7 +121,7 @@
             logInfo(dateRangeNotMatchingMessage + actionMessage);
 
             const url = buildUrlWithDateRangeAppended(yesterdaysDateString);
-            navigateToUrl(url, oneSecondInMiliseconds * 10);
+            navigateToUrl(url, oneSecondInMilliseconds * 10);
         }
 
         if (currentSelectedRange.from !== yesterdaysDateString
@@ -130,7 +130,7 @@
             logInfo(dateRangeNotYesterdayMessage + actionMessage);
 
             const url = buildUrlWithDateRangeAppended(yesterdaysDateString);
-            navigateToUrl(url, oneSecondInMiliseconds * 10);
+            navigateToUrl(url, oneSecondInMilliseconds * 10);
         }
     }
 
