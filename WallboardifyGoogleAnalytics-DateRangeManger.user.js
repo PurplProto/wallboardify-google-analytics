@@ -1,10 +1,12 @@
 // ==UserScript==
 // @name         Wallboardify Google Analytics - Date Range Manger
-// @version      1.0.1
+// @namespace    https://pairedprototype.com/
+// @version      1.1.0
 // @description  Refreshes the page on the hour and selects yesterday's date range for the data GA uses
 // @author       PairedPrototype
 // @match        https://analytics.google.com/analytics/web/*
 // @run-at       document-start
+// @updateURL    https://github.com/PairedPrototype/wallboardify-google-analytics/raw/master/WallboardifyGoogleAnalytics-DateRangeManger.user.js
 // @grant        none
 // ==/UserScript==
 
