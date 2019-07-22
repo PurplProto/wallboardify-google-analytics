@@ -60,7 +60,10 @@
         const regex = /\/_u\.date.*\//;
         const encodedDateRange = location.href.match(regex);
 
-        if (encodedDateRange.length === 0) {
+        if (encodedDateRange === null
+            || encodedDateRange === undefined
+            || encodedDateRange.length === 0
+        ) {
             return dateRange;
         }
 
