@@ -4,7 +4,7 @@
 // @description  Refreshes the page on the hour and selects yesterday's date range for the data GA uses
 // @author       PairedPrototype
 // @match        https://analytics.google.com/analytics/web/*
-// @run-at       document-idle
+// @run-at       document-start
 // @grant        none
 // ==/UserScript==
 
