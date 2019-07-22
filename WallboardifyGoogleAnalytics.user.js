@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Wallboardify Google Analytics
 // @namespace    https://pairedprototype.com/
-// @version      1.0.1
+// @version      1.0.2
 // @description  Scrolls useful content into view and hides the left menu bar on page load
 // @author       PairedPrototype
 // @match        https://analytics.google.com/analytics/web/*
@@ -14,11 +14,13 @@
 (function () {
     'use strict';
 
-    const analyticsPage = window.location.pathname;
-    const logTag = 'WGA [' + analyticsPage + ']: ';
+    const scriptInfo = GM_info;
 
     const hideMenuButtonIdSelector = 'ga-nav-collapse';
     const analyticsContentIdSelector = 'ID-layout';
+
+    const analyticsPage = window.location.pathname;
+    const logTag = 'WGA [' + analyticsPage + ']: ';
 
     function logIt(message, data) {
         if (data) {
@@ -29,24 +31,30 @@
         console.log(logTag + message);
     }
 
-    function hideLeftMenu(element) {
-        window.requestIdleCallback(() => {
-            logIt('WGA: clicking ' + hideMenuButtonIdSelector);
+    function logInfo(message, data) {
+        if (data) {
+            console.info(logTag + message, data);
+            return
+        }
 
-            element.click();
-        });
+        console.info(logTag + message);
+    }
+
+    function hideLeftMenu(element) {
+        logInfo('Clicking ' + hideMenuButtonIdSelector);
+
+        element.onLoad = element.click();
     }
 
     function scrollToAnalytics(element) {
-        window.requestIdleCallback(() => {
-            logIt('WGA: scrolling to ' + analyticsContentIdSelector);
-
-            element.firstElementChild.scrollIntoView(true);
-        });
+        setTimeout(() => {
+            logInfo('Scrolling to ' + analyticsContentIdSelector);
+            element.onLoad = element.scrollIntoView();
+        }, 1000);
     }
 
     function waitForAddedNode(params) {
-        logIt('started watching for mutations');
+        logInfo('Started watching for mutations on: ', params.id);
 
         new MutationObserver(function (mutations) {
             var el = document.getElementById(params.id);
@@ -60,23 +68,28 @@
         });
     }
 
-    logIt('Wallboardify Google Analytics is running!');
+    function main() {
+        logIt('Wallboardify Google Analytics v' + scriptInfo.script.version + ' is running!');
 
-    if (analyticsPage === '/analytics/web/') {
-        waitForAddedNode({
-            id: hideMenuButtonIdSelector,
-            parent: document.body,
-            recursive: false,
-            done: hideLeftMenu,
-        });
+        if (analyticsPage === '/analytics/web/') {
+            waitForAddedNode({
+                id: hideMenuButtonIdSelector,
+                parent: document.body,
+                recursive: false,
+                done: hideLeftMenu,
+            });
+        }
+
+        if (analyticsPage === '/analytics/app/') {
+            waitForAddedNode({
+                id: analyticsContentIdSelector,
+                parent: document.body,
+                recursive: false,
+                done: scrollToAnalytics,
+            });
+        }
     }
 
-    if (analyticsPage === '/analytics/app/') {
-        waitForAddedNode({
-            id: analyticsContentIdSelector,
-            parent: document.body,
-            recursive: false,
-            done: scrollToAnalytics,
-        });
-    }
+    main();
+
 })();
