@@ -1,10 +1,12 @@
 // ==UserScript==
 // @name         Wallboardify Google Analytics - Date Range Manger
-// @version      1.0.1
+// @namespace    https://pairedprototype.com/
+// @version      1.1.0
 // @description  Refreshes the page on the hour and selects yesterday's date range for the data GA uses
 // @author       PairedPrototype
 // @match        https://analytics.google.com/analytics/web/*
-// @run-at       document-idle
+// @run-at       document-start
+// @updateURL    https://github.com/PairedPrototype/wallboardify-google-analytics/raw/master/WallboardifyGoogleAnalytics-DateRangeManger.user.js
 // @grant        none
 // ==/UserScript==
 
@@ -36,9 +38,9 @@
 
     function beginAutoRefresh(currentTime) {
         const refreshTime = new Date();
-        const oneHourInMiliseconds = 3600000;
+        const oneHourInMilliseconds = 3600000;
 
-        refreshTime.setTime(refreshTime.getTime() + oneHourInMiliseconds);
+        refreshTime.setTime(refreshTime.getTime() + oneHourInMilliseconds);
         refreshTime.setMinutes(0);
         refreshTime.setSeconds(0);
 
@@ -60,13 +62,16 @@
         const regex = /\/_u\.date.*\//;
         const encodedDateRange = location.href.match(regex);
 
-        if (encodedDateRange.length === 0) {
+        if (encodedDateRange === null
+            || encodedDateRange === undefined
+            || encodedDateRange.length === 0
+        ) {
             return dateRange;
         }
 
-        const sanatisedDate = encodedDateRange[0].replace(/\//g, "").split("&");
+        const sanitisedDate = encodedDateRange[0].replace(/\//g, "").split("&");
 
-        sanatisedDate.forEach(dirtyDate => {
+        sanitisedDate.forEach(dirtyDate => {
             const cleanDate = dirtyDate.split("=");
 
             if (cleanDate[0] === '_u.date00') {
@@ -81,6 +86,16 @@
         return dateRange;
     }
 
+    function getYesterdaysDateRangeAsString(currentTime) {
+        const yesterdaysDate = {
+            year: currentTime.getFullYear().toString(),
+            month: (currentTime.getMonth() + 1).toString().padStart(2, '0'),
+            day: (currentTime.getDate() - 1).toString().padStart(2, '0'),
+        };
+
+        return yesterdaysDate.year + yesterdaysDate.month + yesterdaysDate.day;
+    }
+
     function navigateToUrl(url) {
         logInfo(`Navigating to '${url}'`);
 
@@ -91,7 +106,13 @@
         const datePrefix00 = '_u.date00';
         const datePrefix01 = '_u.date01';
 
-        let builtUrl = window.location.href.replace(/\/_u\.date.*/g, '');
+        const dateRangeRegex = /\/_u\.date.*/g;
+        const trailingSlashRegex = /\/$/;
+        const emptyString = '';
+
+        let builtUrl = window.location.href;
+        builtUrl = builtUrl.replace(dateRangeRegex, emptyString);
+        builtUrl = builtUrl.replace(trailingSlashRegex, emptyString);
         builtUrl += `/${datePrefix00}=${date}&${datePrefix01}=${date}/`;
 
         logIt('Built URL with new date range:', builtUrl);
@@ -100,28 +121,24 @@
     }
 
     function selectYesterdayForDataRange(currentTime) {
-        const currentYear = currentTime.getFullYear().toString();
-        const currentMonth = (currentTime.getMonth() + 1).toString().padStart(2, '0');
-        const yesterdayDate = (currentTime.getDate() - 1).toString().padStart(2, '0');
-        const yesterdaysDateString = currentYear + currentMonth + yesterdayDate;
-
-        const currentSelectedRange = getCurrentSelectedDateRange();
-
-        const oneSecondInMiliseconds = 1000;
         const dateRangeNotMatchingMessage = 'Date range "from" and "to" do not match.';
         const dateRangeNotYesterdayMessage = 'Date range is not yesterday.';
+        const noExistingSelectedDateRangeMessage = 'Could not get the current selected date range for the data. It probably isn\'t set.';
         const actionMessage = ' Refreshing...';
 
+        const yesterdaysDateString = getYesterdaysDateRangeAsString(currentTime);
+        const currentSelectedRange = getCurrentSelectedDateRange();
+
         if (currentSelectedRange.from === null || currentSelectedRange.to === null) {
-            logInfo('Could not get the current selected date range for the data. It probably isn\'t set.');
+            logInfo(noExistingSelectedDateRangeMessage + actionMessage);
+            navigateToYesterdaysDateRange(yesterdaysDateString);
             return;
         }
 
         if (currentSelectedRange.from !== currentSelectedRange.to) {
             logInfo(dateRangeNotMatchingMessage + actionMessage);
 
-            const url = buildUrlWithDateRangeAppended(yesterdaysDateString);
-            navigateToUrl(url, oneSecondInMiliseconds * 10);
+            navigateToYesterdaysDateRange(yesterdaysDateString);
         }
 
         if (currentSelectedRange.from !== yesterdaysDateString
@@ -129,15 +146,18 @@
         ) {
             logInfo(dateRangeNotYesterdayMessage + actionMessage);
 
-            const url = buildUrlWithDateRangeAppended(yesterdaysDateString);
-            navigateToUrl(url, oneSecondInMiliseconds * 10);
+            navigateToYesterdaysDateRange(yesterdaysDateString);
         }
     }
 
-    function main() {
-        logInfo(scriptInfo.script.name + ' v' + scriptInfo.script.version + ' is running!');
+    function navigateToYesterdaysDateRange(desiredDateRange) {
+        const url = buildUrlWithDateRangeAppended(desiredDateRange);
+        navigateToUrl(url);
+    }
 
+    function main() {
         const currentTime = new Date();
+        logInfo(scriptInfo.script.name + ' v' + scriptInfo.script.version + ' is running!');
 
         beginAutoRefresh(currentTime);
         selectYesterdayForDataRange(currentTime);
